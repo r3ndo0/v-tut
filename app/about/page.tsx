@@ -4,7 +4,7 @@ import PostCard from "@/components/Home/PostCard";
 import { createTodo } from "@/hooks/useCreateTodo";
 import Post from "@/types/post";
 import axios from "axios";
-import React, { useState } from "react";
+import React, { use, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
 
 function about() {
@@ -12,23 +12,21 @@ function about() {
     axios.get<Post[]>("http://localhost:3000/api/get-todos")
   );
   const queryClient = useQueryClient();
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
-  const [id, setId] = useState("");
-  const [userId, setUserId] = useState("");
+  const refId = useRef<HTMLInputElement>(null);
+  const refTitle = useRef<HTMLInputElement>(null);
+  const refBody = useRef<HTMLTextAreaElement>(null);
+  const refUserId = useRef<HTMLInputElement>(null);
+  console.log("asfasdf");
   const formSubmitter = async (e: any) => {
     e.preventDefault();
+
     const res = await createTodo({
-      body,
-      title,
-      id,
-      userId,
+      body: refBody.current?.value,
+      title: refTitle.current?.value ?? "",
+      id: refId.current?.value ?? "",
+      userId: refId.current?.value ?? "",
     });
     if (res.status === 200) {
-      setBody("");
-      setTitle("");
-      setId("");
-      setUserId("");
       queryClient.invalidateQueries("posts");
     }
   };
@@ -42,28 +40,29 @@ function about() {
           <label>title</label>
           <input
             className="border border-gray-500 rounded-[10px] p-3 my-2"
-            onChange={(e) => setTitle(e.target.value)}
+            // onChange={(e) => setTitle(e.target.value)}
+            ref={refTitle}
           />
         </div>
         <div>
           <label>Id</label>
           <input
+            ref={refId}
             className="border border-gray-500 rounded-[10px] p-3 my-2"
-            onChange={(e) => setId(e.target.value)}
           />
         </div>
         <div>
           <label>User Id</label>
           <input
+            ref={refUserId}
             className="border border-gray-500 rounded-[10px] p-3 my-2"
-            onChange={(e) => setUserId(e.target.value)}
           />
         </div>
         <div>
           <label>Body</label>
           <textarea
             className="border border-gray-500 rounded-[10px] p-3 my-2"
-            onChange={(e) => setBody(e.target.value)}
+            ref={refBody}
           />
         </div>
         <button className="px-12 py-3 border border-gray-900" type="submit">
